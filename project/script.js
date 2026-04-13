@@ -32,6 +32,9 @@ const products = [
     { id: 30, name: "Voluminous Mascara", brand: "L'Oreal Paris", category: "makeup", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop", description: "Classic volumizing mascara for up to 5x fuller lashes." }
 ];
 
+// Cloudflare Worker Endpoint
+const AI_ENDPOINT = 'https://loreal.ld6057a.workers.dev/';
+
 // Translations
 const i18n = {
     en: {
@@ -43,7 +46,8 @@ const i18n = {
         searchPlaceholder: "Search products...",
         chatPlaceholder: "Ask me anything about beauty...",
         welcomeMessage: "Hello beautiful! I'm your L'Oreal Beauty Consultant. Select your favorite products above, and I'll craft a personalized routine just for you.",
-        langButton: "العربية"
+        langButton: "العربية",
+        aiError: "Sorry, I'm having trouble connecting. Please try again!"
     },
     ar: {
         productsTitle: "مجموعة مختارة",
@@ -54,7 +58,8 @@ const i18n = {
         searchPlaceholder: "البحث في المنتجات...",
         chatPlaceholder: "اسأليني أي شيء عن الجمال...",
         welcomeMessage: "مرحباً جميلة! أنا مستشار الجمال من لوريال. اختر منتجاتك المفضلة أعلاه، وسأصنع روتيناً مخصصاً لك.",
-        langButton: "English"
+        langButton: "English",
+        aiError: "عذراً، أواجه مشكلة في الاتصال. يرجى المحاولة مرة أخرى!"
     }
 };
 
@@ -63,6 +68,7 @@ let selected = new Set();
 let lang = 'en';
 let filterCat = '';
 let searchQuery = '';
+let chatHistory = [];
 
 // DOM Elements
 const grid = document.getElementById('productsGrid');
@@ -242,24 +248,81 @@ function generateRoutine() {
     addMessage(routine, 'assistant', true);
 }
 
-function handleChat(e) {
+// NEW: Handle chat with Cloudflare Worker + OpenAI
+async function handleChat(e) {
     e.preventDefault();
     var text = chatInput.value.trim();
     if (!text) return;
 
+    // Add user message
     addMessage(text, 'user');
     chatInput.value = '';
+    
+    // Add to history
+    chatHistory.push({ role: 'user', content: text });
 
     showTyping();
 
-    setTimeout(function() {
+    try {
+        // Get selected products context
+        var selectedProducts = products.filter(function(p) { return selected.has(p.id); });
+        var productContext = '';
+        
+        if (selectedProducts.length > 0) {
+            productContext = 'Customer has selected these products: ' + 
+                selectedProducts.map(function(p) { return p.name + ' (' + p.brand + ')'; }).join(', ') + '. ';
+        }
+
+        // System prompt for beauty consultant
+        var systemPrompt = lang === 'ar' 
+            ? 'أنت مستشار جمال خبير من لوريال. أجب بإيجاز ودية باللغة العربية. قدم نصائح مخصصة بناءً على المنتجات المختارة.'
+            : 'You are an expert L\'Oreal Beauty Consultant. Be friendly, concise, and helpful. Provide personalized advice based on selected products.';
+
+        // Prepare messages
+        var messages = [
+            { role: 'system', content: systemPrompt + ' ' + productContext },
+            ...chatHistory.slice(-6) // Keep last 6 messages for context
+        ];
+
+        // Call Cloudflare Worker
+        var response = await fetch(AI_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messages: messages,
+                language: lang
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        var data = await response.json();
+        var aiResponse = data.choices?.[0]?.message?.content || data.response || data.text;
+
+        if (!aiResponse) {
+            throw new Error('Invalid response format');
+        }
+
+        // Add to history and display
+        chatHistory.push({ role: 'assistant', content: aiResponse });
         removeTyping();
-        var response = getResponse(text.toLowerCase());
-        addMessage(response, 'assistant');
-    }, 1500);
+        addMessage(aiResponse, 'assistant');
+
+    } catch (error) {
+        console.error('AI Error:', error);
+        removeTyping();
+        // Fallback to local response
+        var fallbackResponse = getFallbackResponse(text.toLowerCase());
+        addMessage(fallbackResponse, 'assistant');
+    }
 }
 
-function getResponse(text) {
+// Fallback responses if AI fails
+function getFallbackResponse(text) {
     if (text.indexOf('routine') !== -1 || text.indexOf('order') !== -1) {
         return lang === 'ar' 
             ? 'الترتيب المثالي: منظف → مصل → مرطب → واقي شمس.'
