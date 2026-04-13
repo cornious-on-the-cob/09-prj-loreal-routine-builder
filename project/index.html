@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Oréal | Beauty Advisor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div class="container">
+        <header class="header">
+            <div class="brand">
+                <span class="brand-name">L'ORÉAL</span>
+                <span class="brand-tm">®</span>
+                <span class="brand-badge">PARIS</span>
+            </div>
+            <h1 class="title">Beauty Advisor</h1>
+            <p class="tagline">Because You're Worth It</p>
+        </header>
+
+        <div class="controls">
+            <div class="badge">
+                <i class="fas fa-crown"></i>
+                <span>Excellence in Beauty</span>
+            </div>
+            <button class="lang-btn" id="langToggle">
+                <i class="fas fa-globe"></i>
+                <span id="langText">العربية</span>
+            </button>
+        </div>
+
+        <section class="filters">
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search products...">
+            </div>
+            <div class="select-wrap">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="skincare">Skincare</option>
+                    <option value="makeup">Makeup</option>
+                    <option value="haircare">Haircare</option>
+                    <option value="haircolor">Hair Color</option>
+                    <option value="styling">Styling</option>
+                    <option value="mens">Men's Grooming</option>
+                    <option value="suncare">Suncare</option>
+                    <option value="fragrance">Fragrance</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="products">
+            <h2 class="section-title" id="productsTitle">Curated Collection</h2>
+            <div id="productsGrid" class="products-grid"></div>
+        </section>
+
+        <section class="selection">
+            <div class="selection-header">
+                <div class="selection-title-wrap">
+                    <div class="heart-icon"><i class="fas fa-heart"></i></div>
+                    <div>
+                        <h2 class="selection-title" id="selectedTitle">Your Selection</h2>
+                        <span class="selection-count" id="selectedCount">0</span>
+                    </div>
+                </div>
+                <button class="clear-btn" id="clearBtn" style="display: none;">
+                    <i class="far fa-trash-alt"></i>
+                    <span id="clearText">Clear All</span>
+                </button>
+            </div>
+            <div id="selectedList" class="selected-list">
+                <span class="empty-msg" id="emptyText">No products selected yet. Tap products to build your routine.</span>
+            </div>
+            <button id="generateBtn" class="generate-btn" disabled>
+                <span id="generateText">Create My Routine</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </section>
+
+        <section class="chat">
+            <div class="chat-header">
+                <div class="chat-brand">
+                    <span>L'ORÉAL</span>
+                    <span class="chat-tag">Beauty Expert</span>
+                </div>
+                <div class="online-status">
+                    <span class="dot"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+            <div id="chatWindow" class="chat-window">
+                <div class="chat-msg assistant">
+                    <div class="avatar"><i class="fas fa-gem"></i></div>
+                    <div class="bubble">
+                        <p id="welcomeMessage">Hello beautiful! I'm your L'Oréal Beauty Consultant. Select your favorite products above, and I'll craft a personalized routine just for you.</p>
+                        <span class="time">Just now</span>
+                    </div>
+                </div>
+            </div>
+            <form id="chatForm" class="chat-input">
+                <input type="text" id="chatInput" placeholder="Ask me anything about beauty..." autocomplete="off">
+                <button type="submit" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </section>
+
+        <footer class="footer">
+            <div class="footer-accent"></div>
+            <span class="footer-logo">L'ORÉAL</span>
+            <p class="footer-tagline">Create the beauty that moves the world</p>
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Contact</a>
+            </div>
+            <p class="copyright">© 2025 L'Oréal. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
